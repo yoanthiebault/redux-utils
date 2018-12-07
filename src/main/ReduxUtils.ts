@@ -36,7 +36,16 @@ export module ReduxUtils {
     };
 
     export class RootReducerManager {
+        private initialStates: {[stateLabel: string]: any} = {};
+        private reducers: {[stateLabel: string]: Reducers<any>} = {};
 
+        public setInitialState<S>(stateLabel: string, initialState: S): void {
+            this.initialStates[stateLabel] = initialState
+        }
+
+        public addReducer<S,T extends string>(stateLabel: string, actionType: T, reducer: Reducer<S,Action<T>>): void {
+            this.reducers[stateLabel][actionType] = reducer
+        }
     }
 }
 
