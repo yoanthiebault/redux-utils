@@ -33,4 +33,4 @@ export const createReducer = <S, T extends string>(initialState: S, handlers: Ha
             return state
         }
     }
-}
+};

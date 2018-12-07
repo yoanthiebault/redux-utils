@@ -1,0 +1,14 @@
+{
+  "name": "redux-utils",
+  "version": "1.0.0",
+  "license": "MIT",
+  "main": "./src/main/index.ts",
+  "dependencies": {},
+  "peerDependencies": {
+    "redux": "^4.0.1"
+  },
+  "devDependencies": {
+    "@types/redux": "^3.6.0",
+    "redux": "^4.0.1"
+  }
+}
