@@ -1,4 +1,4 @@
-import {Action as ReduxAction} from "redux"
+import {Action as ReduxAction, Reducer} from "redux"
 
 /* Action interfaces */
 
@@ -11,12 +11,8 @@ export interface ActionWithPayload<T extends string, P> extends Action<T> {
 
 /* Reducer interfaces */
 
-export interface ActionHandler<S,T extends string, A extends Action<T>> {
-    (state: S, action: A): S
-}
-
-interface Handlers<S> {
-    [actionType: string]: ActionHandler<S,any,any>
+interface Reducers<S> {
+    [actionType: string]: Reducer<S,Action<any>>
 }
 
 /* Utils */
@@ -29,15 +25,18 @@ export module ReduxUtils {
         return payload === undefined ? { type } : { type, payload }
     }
 
-    export const createReducer = <S, T extends string>(initialState: S, handlers: Handlers<S>) => {
+    export const createReducer = <S, T extends string>(initialState: S, reducers: Reducers<S>) => {
         return (state = initialState, action: Action<T>): S => {
-            if (handlers.hasOwnProperty(action.type)) {
-                return handlers[action.type](state, action)
+            if (reducers.hasOwnProperty(action.type)) {
+                return reducers[action.type](state, action)
             } else {
                 return state
             }
         }
     };
 
+    export class RootReducerManager {
+
+    }
 }
 
