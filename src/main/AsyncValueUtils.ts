@@ -1,4 +1,4 @@
-import {createAction} from "./ReduxType";
+import {ReduxUtils} from "./ReduxUtils";
 
 export interface AsyncValue<T> {
     value: T
@@ -6,7 +6,7 @@ export interface AsyncValue<T> {
     loading: boolean
 }
 
-export module AsyncValueModule {
+export module AsyncValueUtils {
     export const INITIAL_ASYNC_VALUE: AsyncValue<any> = {
         error: null,
         loading: false,
@@ -15,13 +15,13 @@ export module AsyncValueModule {
 
 
     export const createLoadActionCreator = <AT extends string>(actionType: AT) => {
-        return () => createAction(actionType)
+        return () => ReduxUtils.createAction(actionType)
     };
     export const createSuccessActionCreator = <AT extends string,T>(actionType: AT) => {
-        return (value: T) => createAction(actionType, value)
+        return (value: T) => ReduxUtils.createAction(actionType, value)
     };
     export const createErrorActionCreator = <AT extends string>(actionType: AT) => {
-        return (error: any) => createAction(actionType, error)
+        return (error: any) => ReduxUtils.createAction(actionType, error)
     };
 
 
