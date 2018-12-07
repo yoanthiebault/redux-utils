@@ -1,3 +1,3 @@
 export * from "./AsyncValue"
 export * from "./ImmutableUtils"
-export * from "./ReduxType"
+export * from "./ReduxUtils"
