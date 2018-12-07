@@ -9,3 +9,7 @@ export function classname(...args: string[]): string {
 export function propertyOf<TObj>(name: keyof TObj): string {
   return name;
 }
+
+export interface Dict<T> {
+    [key: string]: T
+}
