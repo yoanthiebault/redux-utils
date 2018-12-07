@@ -5,9 +5,11 @@
   "main": "./src/main/index.ts",
   "dependencies": {},
   "peerDependencies": {
-    "redux": "^4.0.1"
+    "redux": "^4.0.1",
+    "redux-thunk": "^2.3.0"
   },
   "devDependencies": {
-    "redux": "^4.0.1"
+    "redux": "^4.0.1",
+    "redux-thunk": "^2.3.0"
   }
 }
