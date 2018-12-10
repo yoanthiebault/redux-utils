@@ -1,6 +1,7 @@
 export * from "./AsyncValueUtils"
 export * from "./ImmutableUtils"
 export * from "./ReduxUtils"
+export * from "./PathUtils"
 
 export function classname(...args: string[]): string {
     return args.filter(arg => arg).join(" ");
