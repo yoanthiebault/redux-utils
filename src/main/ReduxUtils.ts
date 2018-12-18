@@ -34,6 +34,7 @@ export module ReduxUtils {
 
         public setInitialState<ST, SL extends keyof ST>(stateLabel: SL & string, initialState: ST[SL]): void {
             this.initialStates[stateLabel] = initialState
+            this.reducers[stateLabel] = {}
         }
 
         public addReducer<ST, SL extends keyof ST, A extends Action>(
