@@ -2,7 +2,7 @@ import {Action as ReduxAction, Reducer} from "redux"
 
 /* Action interfaces */
 
-export interface Action<T extends string> extends ReduxAction<T> {
+export interface Action<T extends string = string> extends ReduxAction<T> {
 
 }
 
@@ -17,6 +17,8 @@ interface Reducers<S> {
 }
 
 /* Utils */
+
+type Unpack<T> = T extends Action<infer U> ? U : never
 
 export module ReduxUtils {
 
@@ -34,7 +36,11 @@ export module ReduxUtils {
             this.initialStates[stateLabel] = initialState
         }
 
-        public addReducer<ST, SL extends keyof ST, T extends string, A extends Action<T>>(stateLabel: SL & string, actionType: T, reducer: Reducer<ST[SL], A>): void {
+        public addReducer<ST, SL extends keyof ST, A extends Action>(
+            stateLabel: SL & string,
+            actionType: Unpack<A>,
+            reducer: Reducer<ST[SL], A>
+        ): void {
             this.reducers[stateLabel][actionType] = reducer
         }
 

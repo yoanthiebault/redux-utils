@@ -21,7 +21,7 @@ export module AsyncValueUtils {
         return () => ReduxUtils.createAction(actionType)
     };
     const createLoadReducer = <S>(attribute: keyof S) => {
-        return (state: S, _): S => {
+        return (state: S): S => {
             const newAsyncValue: AsyncValue<any> = {
                 ...(state as any)[attribute],
                 loading: true
@@ -39,7 +39,7 @@ export module AsyncValueUtils {
         actionType: AT) => {
         const loadActionCreator = createLoadActionCreator(actionType);
         const reducer = createLoadReducer<ST[SL]>(stateAttribute);
-        rootReducerManager.addReducer<ST, SL, AT, any>(stateLabel, actionType, reducer);
+        rootReducerManager.addReducer<ST, SL, any>(stateLabel, actionType, reducer);
         return loadActionCreator
     };
 
@@ -67,7 +67,7 @@ export module AsyncValueUtils {
         actionType: AT) => {
         const successActionCreator = createSuccessActionCreator<AT, V>(actionType);
         const reducer = createSuccessReducer<ST[SL]>(stateAttribute);
-        rootReducerManager.addReducer<ST, SL, AT, any>(stateLabel, actionType, reducer);
+        rootReducerManager.addReducer<ST, SL, any>(stateLabel, actionType, reducer);
         return successActionCreator
     };
 
@@ -95,7 +95,7 @@ export module AsyncValueUtils {
         actionType: AT) => {
         const errorActionCreator = createErrorActionCreator(actionType);
         const reducer = createErrorReducer<ST[SL]>(stateAttribute);
-        rootReducerManager.addReducer<ST, SL, AT, any>(stateLabel, actionType, reducer);
+        rootReducerManager.addReducer<ST, SL, any>(stateLabel, actionType, reducer);
         return errorActionCreator
     };
 
