@@ -11,7 +11,7 @@ type Unpack<T> = T extends AsyncValue<infer U> ? U : never
 
 export module AsyncValueUtils {
     import RootReducerManager = ReduxUtils.RootReducerManager;
-    const INITIAL_ASYNC_VALUE: AsyncValue<any> = {
+    export const INITIAL_ASYNC_VALUE: AsyncValue<any> = {
         error: null,
         loading: false,
         value: null
