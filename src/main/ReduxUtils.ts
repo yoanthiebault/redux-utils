@@ -30,11 +30,11 @@ export module ReduxUtils {
         private initialStates: { [stateLabel: string]: any } = {};
         private reducers: { [stateLabel: string]: Reducers<any> } = {};
 
-        public setInitialState<S>(stateLabel: string, initialState: S): void {
+        public setInitialState<ST, SL extends keyof ST>(stateLabel: SL & string, initialState: ST[SL]): void {
             this.initialStates[stateLabel] = initialState
         }
 
-        public addReducer<S, T extends string>(stateLabel: string, actionType: T, reducer: Reducer<S, Action<T>>): void {
+        public addReducer<ST, SL extends keyof ST, T extends string, A extends Action<T>>(stateLabel: SL & string, actionType: T, reducer: Reducer<ST[SL], A>): void {
             this.reducers[stateLabel][actionType] = reducer
         }
 
