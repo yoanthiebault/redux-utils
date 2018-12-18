@@ -7,6 +7,8 @@ export interface AsyncValue<T> {
     loading: boolean
 }
 
+type Unpack<T> = T extends AsyncValue<infer U> ? U : never
+
 export module AsyncValueUtils {
     import RootReducerManager = ReduxUtils.RootReducerManager;
     const INITIAL_ASYNC_VALUE: AsyncValue<any> = {
@@ -19,7 +21,7 @@ export module AsyncValueUtils {
         return () => ReduxUtils.createAction(actionType)
     };
     const createLoadReducer = <S>(attribute: keyof S) => {
-        return (state: S, _) => {
+        return (state: S, _): S => {
             const newAsyncValue: AsyncValue<any> = {
                 ...(state as any)[attribute],
                 loading: true
@@ -30,40 +32,42 @@ export module AsyncValueUtils {
             }
         }
     };
-    const registerLoadAction = <S, AT extends string>(rootReducerManager: RootReducerManager,
-                                                      stateLabel: string,
-                                                      stateAttribute: keyof S,
-                                                      actionType: AT) => {
+    const registerLoadAction = <ST, SL extends keyof ST, AT extends string>(
+        rootReducerManager: RootReducerManager,
+        stateLabel: SL & string,
+        stateAttribute: keyof ST[SL],
+        actionType: AT) => {
         const loadActionCreator = createLoadActionCreator(actionType);
-        const reducer = createLoadReducer(stateAttribute);
-        rootReducerManager.addReducer(stateLabel, actionType, reducer);
+        const reducer = createLoadReducer<ST[SL]>(stateAttribute);
+        rootReducerManager.addReducer<ST, SL, AT, any>(stateLabel, actionType, reducer);
         return loadActionCreator
     };
 
 
-    const createSuccessActionCreator = <AT extends string,T>(actionType: AT) => {
+    const createSuccessActionCreator = <AT extends string, T>(actionType: AT) => {
         return (value: T) => ReduxUtils.createAction(actionType, value)
     };
-    const createSuccessReducer = <S extends Object>(attribute: keyof S) => {
-        return (state: S, action: ReturnType<ReturnType<typeof createSuccessActionCreator>>) => {
+    const createSuccessReducer = <S>(attribute: keyof S) => {
+        return (state: S, action: ReturnType<ReturnType<typeof createSuccessActionCreator>>): S => {
             const newAsyncValue: AsyncValue<any> = {
                 value: action.payload,
                 error: null,
                 loading: false
             };
             return {
-                ...(state as any),
+                ...state as any,
                 [attribute]: newAsyncValue
             }
         }
     };
-    const registerSuccessAction = <S, V, AT extends string>(rootReducerManager: RootReducerManager,
-                                                         stateLabel: string,
-                                                         stateAttribute: keyof S,
-                                                         actionType: AT) => {
-        const successActionCreator = createSuccessActionCreator<AT,V>(actionType);
-        const reducer = createSuccessReducer(stateAttribute);
-        rootReducerManager.addReducer(stateLabel, actionType, reducer);
+    const registerSuccessAction = <ST, SL extends keyof ST & string, SA extends keyof ST[SL], V extends Unpack<ST[SL][SA]>, AT extends string>(
+        rootReducerManager: RootReducerManager,
+        stateLabel: SL,
+        stateAttribute: SA,
+        actionType: AT) => {
+        const successActionCreator = createSuccessActionCreator<AT, V>(actionType);
+        const reducer = createSuccessReducer<ST[SL]>(stateAttribute);
+        rootReducerManager.addReducer<ST, SL, AT, any>(stateLabel, actionType, reducer);
         return successActionCreator
     };
 
@@ -72,7 +76,7 @@ export module AsyncValueUtils {
         return (error: any) => ReduxUtils.createAction(actionType, error)
     };
     const createErrorReducer = <S extends Object>(attribute: keyof S) => {
-        return (state: S, action) => {
+        return (state: S, action): S => {
             const newAsyncValue: AsyncValue<any> = {
                 value: null,
                 error: action.payload,
@@ -84,40 +88,43 @@ export module AsyncValueUtils {
             }
         }
     };
-    const registerErrorAction = <S, AT extends string>(rootReducerManager: RootReducerManager,
-                                                      stateLabel: string,
-                                                      stateAttribute: keyof S,
-                                                      actionType: AT) => {
+    const registerErrorAction = <ST, SL extends keyof ST & string, SA extends keyof ST[SL], AT extends string>(
+        rootReducerManager: RootReducerManager,
+        stateLabel: SL,
+        stateAttribute: SA,
+        actionType: AT) => {
         const errorActionCreator = createErrorActionCreator(actionType);
-        const reducer = createErrorReducer(stateAttribute);
-        rootReducerManager.addReducer(stateLabel, actionType, reducer);
+        const reducer = createErrorReducer<ST[SL]>(stateAttribute);
+        rootReducerManager.addReducer<ST, SL, AT, any>(stateLabel, actionType, reducer);
         return errorActionCreator
     };
 
-    export const registerActionCreators = <S, V, LAT extends string, SAT extends string, EAT extends string>(rootReducerManager: RootReducerManager,
-                                                                                                      stateLabel: string,
-                                                                                                      stateAttribute: keyof S,
-                                                                                                      loadActionType: LAT,
-                                                                                                      successActionType: SAT,
-                                                                                                      errorActionType: EAT) => {
+    export const registerActionCreators = <ST, SL extends keyof ST & string, SA extends keyof ST[SL], V extends Unpack<ST[SL][SA]>, LAT extends string, SAT extends string, EAT extends string>(
+        rootReducerManager: RootReducerManager,
+        stateLabel: SL,
+        stateAttribute: SA,
+        loadActionType: LAT,
+        successActionType: SAT,
+        errorActionType: EAT) => {
         // rootReducerManager.setInitialState(stateLabel, INITIAL_ASYNC_VALUE);
         return {
-            loadActionCreator: registerLoadAction(rootReducerManager, stateLabel, stateAttribute, loadActionType),
-            successActionCreator: registerSuccessAction<S,V,SAT>(rootReducerManager, stateLabel, stateAttribute, successActionType),
-            errorActionCreator: registerErrorAction(rootReducerManager, stateLabel, stateAttribute, errorActionType),
+            loadActionCreator: registerLoadAction<ST, SL, LAT>(rootReducerManager, stateLabel, stateAttribute, loadActionType),
+            successActionCreator: registerSuccessAction<ST, SL, SA, V, SAT>(rootReducerManager, stateLabel, stateAttribute, successActionType),
+            errorActionCreator: registerErrorAction<ST, SL, SA, EAT>(rootReducerManager, stateLabel, stateAttribute, errorActionType),
         }
     };
 
-    export const registerThunkActionCreator = <S,V,U extends any[]>(rootReducerManager: RootReducerManager,
-                                        stateLabel: string,
-                                        stateAttribute: keyof S,
-                                        actionPrefix: string,
-                                        asyncFunction: (rootState: S, ...args: U) => Promise<V>): (...args: U) => ThunkAction<void,S,void,Action<any>> => {
+    export const registerThunkActionCreator = <ST, SL extends keyof ST & string, SA extends keyof ST[SL], V extends Unpack<ST[SL][SA]>, U extends any[]>(
+        rootReducerManager: RootReducerManager,
+        stateLabel: SL,
+        stateAttribute: SA,
+        actionPrefix: string,
+        asyncFunction: (rootState: ST, ...args: U) => Promise<V>): (...args: U) => ThunkAction<void, ST, void, Action<any>> => {
         const {
             loadActionCreator,
             successActionCreator,
             errorActionCreator
-        } = registerActionCreators(rootReducerManager, stateLabel, stateAttribute,
+        } = registerActionCreators<ST,SL,SA,V,string,string,string>(rootReducerManager, stateLabel, stateAttribute,
             actionPrefix + "/load",
             actionPrefix + "/success",
             actionPrefix + "/error");
