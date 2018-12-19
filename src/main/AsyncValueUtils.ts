@@ -133,7 +133,7 @@ export module AsyncValueUtils {
             dispatch(loadActionCreator());
             asyncFunction(getRootState(), ...args)
                 .then(value => dispatch(successActionCreator(value)))
-                .then(err => dispatch(errorActionCreator(err)))
+                .catch(err => dispatch(errorActionCreator(err)))
         }
     }
 }
