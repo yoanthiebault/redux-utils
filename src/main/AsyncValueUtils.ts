@@ -78,7 +78,7 @@ export module AsyncValueUtils {
     const createErrorReducer = <S extends Object>(attribute: keyof S) => {
         return (state: S, action): S => {
             const newAsyncValue: AsyncValue<any> = {
-                value: null,
+                ...(state as any)[attribute],
                 error: action.payload,
                 loading: false
             };
