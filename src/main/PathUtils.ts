@@ -1,3 +1,4 @@
+import {Replacer} from "./Replacer";
 
 export type PathElement = string | number
 export interface Path extends Array<PathElement> {}
@@ -22,6 +23,21 @@ export module PathUtils {
         }
         return [t1 as PathElement]
     }
+
+    interface Editer<T> {
+        (replacer: Replacer<T>):  void
+    }
+    
+    export function transform<T, U1 extends keyof T>(edit: Editer<T>, t1: U1): Editer<T[U1]>
+    export function transform<T, U1 extends keyof T, U2 extends keyof T[U1]>(edit: Editer<T>, t1: U1, t2: U2): Editer<T[U1][U2]>
+    export function transform<T, U1 extends keyof T, U2 extends keyof T[U1], U3 extends keyof T[U1][U2]>(edit: Editer<T>, t1: U1, t2: U2, t3: U3): Editer<T[U1][U2][U3]>
+    export function transform<T, U1 extends keyof T, U2 extends keyof T[U1], U3 extends keyof T[U1][U2], U4 extends keyof T[U1][U2][U3]>(edit: Editer<T>, t1: U1, t2: U2, t3: U3, t4: U4): Editer<T[U1][U2][U3][U4]>
+    export function transform<T, U1 extends keyof T, U2 extends keyof T[U1], U3 extends keyof T[U1][U2], U4 extends keyof T[U1][U2][U3]>(edit: Editer<T>, t1: U1, t2?: U2, t3?: U3, t4?: U4): Editer<T[U1][U2][U3][U4]> { 
+        return (replacer) => {
+            edit((previousElement) => replace(previousElement, create(null as T, t1, t2, t3, t4), replacer))
+        }
+    }
+
 
     export const equals = (a: Path, b: Path): boolean => {
         if (!a && !b) {

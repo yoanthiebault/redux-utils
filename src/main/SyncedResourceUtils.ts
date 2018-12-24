@@ -123,7 +123,7 @@ export module SyncedResourceUtils {
         onPull: (rootState: RS, id: ID, ...args: SYA) => Promise<V>,
         onPush: (rootState: RS, id: ID, content: V, ...args: SYA) => Promise<V>
     ): {
-        edit: (id: ID, content: V, ...args: SYA) => ThunkAction<void, RS, void, Action<any>>
+        edit: (id: ID, replacer: Replacer<V>, ...args: SYA) => ThunkAction<void, RS, void, Action<any>>
         sync: (id: ID, ...args: SYA) => ThunkAction<Promise<V>, RS, void, Action<any>>,
     } {
 
@@ -195,7 +195,7 @@ export module SyncedResourceUtils {
             })) as any));
 
         // const pushFunctions: any = {};
-        const push = AsyncUtils.debounce((dispatch, getRootState, id, content, ...args): Promise<any> => {
+        const push = AsyncUtils.debounce((dispatch, rootState, id, content, ...args): Promise<any> => {
             // const rootState = getRootState();
             // if (rootState[stateLabel]
             //     && rootState[stateLabel][stateAttribute]
@@ -208,7 +208,7 @@ export module SyncedResourceUtils {
             //     }
             // }
             dispatch(startPushing(id));
-            return onPush(getRootState(), id, content, ...(args as any))
+            return onPush(rootState, id, content, ...(args as any))
                 .then(resp => dispatch(pushSuccess(id, resp)))
                 .catch(err => dispatch(pushError(id, err)));
         }, 500);
@@ -233,7 +233,9 @@ export module SyncedResourceUtils {
                     .catch(err => dispatch(pullError(id, err)));
                 return promise
             },
-            edit: (id, content, ...args) => (dispatch, getRootState) => {
+            edit: (id, replacer, ...args) => (dispatch, getRootState) => {
+                const rootState = getRootState();
+                const content = replacer((rootState[stateLabel][stateAttribute][id] as any as RWResource<any>).localValue);
                 dispatch(edit(id, content));
                 push(dispatch, getRootState, id, content, ...args);
             }
