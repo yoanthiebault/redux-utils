@@ -1,6 +1,5 @@
-export interface Replacer<T> {
-    (oldElement: T): T
-}
+import {Replacer} from "./Replacer";
+
 
 export module ImmutableUtils {
 
